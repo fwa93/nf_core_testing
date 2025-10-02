@@ -241,5 +241,16 @@
         {
             "$ref": "#/$defs/generic_options"
         }
-    ]
+    ],
+    "properties": {
+        "barcodes_samplesheet": {
+            "type": "string",
+            "description": "path to samplesheet for unmerged fastq-files. Will generate merged fastq.gz files"
+        },
+        "merge_fastq_pass": {
+            "type": "string",
+            "description": "Path to directory containing directories of unmerged fastq.gz files"
+        }
+    },
+    "required": ["barcodes_samplesheet", "merge_fastq_pass"]
 }
