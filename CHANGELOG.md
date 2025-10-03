@@ -8,6 +8,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 Initial release of fwa93/testing, created with the [nf-core](https://nf-co.re/) template.
 
 ### `Added`
+- Added base for the pipeline
+- Added module for merging ont data
+- Added module pycoqc
 
 ### `Fixed`
 
