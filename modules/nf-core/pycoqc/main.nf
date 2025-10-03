@@ -8,19 +8,19 @@ process PYCOQC {
         'biocontainers/pycoqc:2.5.2--py_0' }"
 
     input:
-    tuple val(meta), path(summary)
+    path(summary)
 
     output:
-    tuple val(meta), path("*.html"), emit: html
-    tuple val(meta), path("*.json"), emit: json
-    path  "versions.yml"           , emit: versions
+    path    "*.html"                 , emit:html
+    path    "*.json"                 , emit: json
+    path    "versions.yml"           , emit: versions
 
     when:
     task.ext.when == null || task.ext.when
 
     script:
     def args = task.ext.args ?: ''
-    def prefix = task.ext.prefix ?: "${meta.id}"
+    def prefix = task.ext.prefix ?: "pycoqc"
     """
     pycoQC \\
         $args \\

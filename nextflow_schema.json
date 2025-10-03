@@ -250,7 +250,11 @@
         "merge_fastq_pass": {
             "type": "string",
             "description": "Path to directory containing directories of unmerged fastq.gz files"
+        },
+        "sequencing_summary": {
+            "type": "string",
+            "description": "Path to nanopore sequencing summary file"
         }
     },
-    "required": ["barcodes_samplesheet", "merge_fastq_pass"]
+    "required": ["barcodes_samplesheet", "merge_fastq_pass", "sequencing_summary"]
 }
