@@ -38,6 +38,3 @@ process GENERATE_INPUT {
     touch generate_input_log.log
     """
 }
-
-
-

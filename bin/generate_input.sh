@@ -42,4 +42,3 @@ echo "file saved as samplesheet_merged.csv"
 echo
 rm -f ./reads.txt
 echo "Script finished"
-

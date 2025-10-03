@@ -40,4 +40,3 @@ process MERGE_BARCODES_SAMPLESHEET {
     END_VERSIONS
     """
 }
-
