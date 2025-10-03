@@ -8,15 +8,16 @@
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
-include { UTILS_NFSCHEMA_PLUGIN     } from '../../nf-core/utils_nfschema_plugin'
-include { paramsSummaryMap          } from 'plugin/nf-schema'
-include { samplesheetToList         } from 'plugin/nf-schema'
-include { completionEmail           } from '../../nf-core/utils_nfcore_pipeline'
-include { completionSummary         } from '../../nf-core/utils_nfcore_pipeline'
-include { imNotification            } from '../../nf-core/utils_nfcore_pipeline'
-include { UTILS_NFCORE_PIPELINE     } from '../../nf-core/utils_nfcore_pipeline'
-include { UTILS_NEXTFLOW_PIPELINE   } from '../../nf-core/utils_nextflow_pipeline'
-
+include { UTILS_NFSCHEMA_PLUGIN      } from '../../nf-core/utils_nfschema_plugin'
+include { paramsSummaryMap           } from 'plugin/nf-schema'
+include { samplesheetToList          } from 'plugin/nf-schema'
+include { completionEmail            } from '../../nf-core/utils_nfcore_pipeline'
+include { completionSummary          } from '../../nf-core/utils_nfcore_pipeline'
+include { imNotification             } from '../../nf-core/utils_nfcore_pipeline'
+include { UTILS_NFCORE_PIPELINE      } from '../../nf-core/utils_nfcore_pipeline'
+include { UTILS_NEXTFLOW_PIPELINE    } from '../../nf-core/utils_nextflow_pipeline'
+include { MERGE_BARCODES_SAMPLESHEET } from '../../../modules/local/merge_barcodes_samplesheet/main'
+include { GENERATE_INPUT             } from '../../../modules/local/generate_input/main'
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     SUBWORKFLOW TO INITIALISE PIPELINE
@@ -31,7 +32,9 @@ workflow PIPELINE_INITIALISATION {
     monochrome_logs   // boolean: Do not use coloured log outputs
     nextflow_cli_args //   array: List of positional nextflow CLI args
     outdir            //  string: The output directory where the results will be saved
-    input             //  string: Path to input samplesheet
+    samplesheet
+    barcodes_samplesheet    // string: Path to input barcodes samplesheet
+    merge_fastq_pass        // string: Path to directory ONT fastq_pass dir
 
     main:
 
@@ -63,38 +66,54 @@ workflow PIPELINE_INITIALISATION {
         nextflow_cli_args
     )
 
+   // Check input path parameters to see if they exist
+    def checkPathParamList = !merge_fastq_pass ? [params.input] : []
+    checkPathParamList += [params.multiqc_config]
+    checkPathParamList.findAll { it }.each { path ->
+        if (!file(path).exists()) {
+            exit 1, "ERROR: File path does not exist: ${path}"
+        }
+    }
+
+    //MODULE: Run merge_barcodes_samplesheet
+    if ( barcodes_samplesheet ) {
+        MERGE_BARCODES_SAMPLESHEET(barcodes_samplesheet, merge_fastq_pass)
+        GENERATE_INPUT(MERGE_BARCODES_SAMPLESHEET.out.fastq_dir_merged).sample_sheet_merged.set{ ch_samplesheet_path }
+    } else {
+        // fallback:  params.input
+        ch_samplesheet_path = Channel.fromPath(params.input)
+    }
+    //
+
     //
     // Custom validation for pipeline parameters
     //
     validateInputParameters()
 
     //
-    // Create channel from input file provided through params.input
     //
-
-    Channel
-        .fromList(samplesheetToList(params.input, "${projectDir}/assets/schema_input.json"))
+    // SUBWORKFLOW: Read in samplesheet, validate and stage input files
+    //
+    ch_samplesheet_path
+        .flatMap { samplesheet_path ->
+            samplesheetToList(samplesheet_path, "${projectDir}/assets/schema_input.json")
+        }
         .map {
             meta, fastq_1, fastq_2 ->
                 if (!fastq_2) {
-                    return [ meta.id, meta + [ single_end:true ], [ fastq_1 ] ]
+                    return [ meta.id, meta + [ single_end:true ],  fastq_1  ]
                 } else {
                     return [ meta.id, meta + [ single_end:false ], [ fastq_1, fastq_2 ] ]
                 }
         }
         .groupTuple()
-        .map { samplesheet ->
-            validateInputSamplesheet(samplesheet)
-        }
-        .map {
-            meta, fastqs ->
-                return [ meta, fastqs.flatten() ]
-        }
-        .set { ch_samplesheet }
+        .map { validateInputSamplesheet( it ) }
+        .set { ch_reads }
 
     emit:
-    samplesheet = ch_samplesheet
-    versions    = ch_versions
+    reads       = ch_reads            // channel: [ val(meta), [ reads ] ]
+    samplesheet = ch_samplesheet_path // channel: [ val(meta), [ samplesheet ] ]
+    versions    = ch_versions         // channel: [ versions.yml ]
 }
 
 /*

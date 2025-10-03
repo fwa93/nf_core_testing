@@ -42,15 +42,15 @@ workflow FWA93_TESTING {
 
     take:
     samplesheet // channel: samplesheet read in from --input
+    reads
 
     main:
 
     //
     // WORKFLOW: Run pipeline
     //
-    TESTING (
-        samplesheet
-    )
+    TESTING (samplesheet, reads)
+
     emit:
     multiqc_report = TESTING.out.multiqc_report // channel: /path/to/multiqc_report.html
 }
@@ -72,15 +72,19 @@ workflow {
         params.monochrome_logs,
         args,
         params.outdir,
-        params.input
+        params.input,
+        params.barcodes_samplesheet,
+        params.merge_fastq_pass
     )
 
     //
     // WORKFLOW: Run main workflow
     //
     FWA93_TESTING (
-        PIPELINE_INITIALISATION.out.samplesheet
+        PIPELINE_INITIALISATION.out.samplesheet,
+        PIPELINE_INITIALISATION.out.reads
     )
+
     //
     // SUBWORKFLOW: Run completion tasks
     //
