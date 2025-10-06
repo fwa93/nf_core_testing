@@ -1,0 +1,94 @@
+Changes in component 'nf-core/pycoqc'
+'modules/nf-core/pycoqc/environment.yml' is unchanged
+Changes in 'pycoqc/main.nf':
+--- modules/nf-core/pycoqc/main.nf
++++ modules/nf-core/pycoqc/main.nf
+@@ -8,19 +8,19 @@
+         'biocontainers/pycoqc:2.5.2--py_0' }"
+ 
+     input:
+-    tuple val(meta), path(summary)
++    path(summary)
+ 
+     output:
+-    tuple val(meta), path("*.html"), emit: html
+-    tuple val(meta), path("*.json"), emit: json
+-    path  "versions.yml"           , emit: versions
++    path    "*.html"                 , emit:html
++    path    "*.json"                 , emit: json
++    path    "versions.yml"           , emit: versions
+ 
+     when:
+     task.ext.when == null || task.ext.when
+ 
+     script:
+     def args = task.ext.args ?: ''
+-    def prefix = task.ext.prefix ?: "${meta.id}"
++    def prefix = task.ext.prefix ?: "pycoqc"
+     """
+     pycoQC \\
+         $args \\
+
+Changes in 'pycoqc/meta.yml':
+--- modules/nf-core/pycoqc/meta.yml
++++ modules/nf-core/pycoqc/meta.yml
+@@ -16,39 +16,24 @@
+       licence: ["GNU General Public v3 (GPL v3)"]
+       identifier: biotools:pycoqc
+ input:
+-  - - meta:
+-        type: map
+-        description: |
+-          Groovy Map containing sample information
+-          e.g. [ id:'test', single_end:false ]
+-    - summary:
+-        type: file
+-        description: sequencing summary file
+-        pattern: "*.{txt}"
+-        ontologies: []
++  - summary:
++      type: file
++      description: sequencing summary file
++      pattern: "*.{txt}"
++      ontologies: []
+ output:
+   html:
+-    - - meta:
+-          type: map
+-          description: |
+-            Groovy Map containing sample information
+-            e.g. [ id:'test', single_end:false ]
+-      - "*.html":
+-          type: file
+-          description: Results in HTML format
+-          ontologies: []
++    - "*.html":
++        type: file
++        description: Results in HTML format
++        ontologies: []
+   json:
+-    - - meta:
+-          type: map
+-          description: |
+-            Groovy Map containing sample information
+-            e.g. [ id:'test', single_end:false ]
+-      - "*.json":
+-          type: file
+-          description: Results in JSON format
+-          pattern: "*.{json}"
+-          ontologies:
+-            - edam: http://edamontology.org/format_3464 # JSON
++    - "*.json":
++        type: file
++        description: Results in JSON format
++        pattern: "*.{json}"
++        ontologies:
++          - edam: http://edamontology.org/format_3464 # JSON
+   versions:
+     - versions.yml:
+         type: file
+
+'modules/nf-core/pycoqc/tests/nextflow.config' is unchanged
+'modules/nf-core/pycoqc/tests/main.nf.test.snap' is unchanged
+'modules/nf-core/pycoqc/tests/main.nf.test' is unchanged
+************************************************************
