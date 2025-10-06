@@ -16,11 +16,6 @@ tools:
       licence: ["GNU General Public v3 (GPL v3)"]
       identifier: biotools:pycoqc
 input:
-  - - meta:
-        type: map
-        description: |
-          Groovy Map containing sample information
-          e.g. [ id:'test', single_end:false ]
     - summary:
         type: file
         description: sequencing summary file
@@ -28,21 +23,11 @@ input:
         ontologies: []
 output:
   html:
-    - - meta:
-          type: map
-          description: |
-            Groovy Map containing sample information
-            e.g. [ id:'test', single_end:false ]
       - "*.html":
           type: file
           description: Results in HTML format
           ontologies: []
   json:
-    - - meta:
-          type: map
-          description: |
-            Groovy Map containing sample information
-            e.g. [ id:'test', single_end:false ]
       - "*.json":
           type: file
           description: Results in JSON format
