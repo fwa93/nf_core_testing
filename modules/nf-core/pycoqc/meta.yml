@@ -16,24 +16,24 @@ tools:
       licence: ["GNU General Public v3 (GPL v3)"]
       identifier: biotools:pycoqc
 input:
-    - summary:
-        type: file
-        description: sequencing summary file
-        pattern: "*.{txt}"
-        ontologies: []
+  - summary:
+      type: file
+      description: sequencing summary file
+      pattern: "*.{txt}"
+      ontologies: []
 output:
   html:
-      - "*.html":
-          type: file
-          description: Results in HTML format
-          ontologies: []
+    - "*.html":
+        type: file
+        description: Results in HTML format
+        ontologies: []
   json:
-      - "*.json":
-          type: file
-          description: Results in JSON format
-          pattern: "*.{json}"
-          ontologies:
-            - edam: http://edamontology.org/format_3464 # JSON
+    - "*.json":
+        type: file
+        description: Results in JSON format
+        pattern: "*.{json}"
+        ontologies:
+          - edam: http://edamontology.org/format_3464 # JSON
   versions:
     - versions.yml:
         type: file
